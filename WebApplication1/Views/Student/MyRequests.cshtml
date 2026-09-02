@@ -1,0 +1,77 @@
+@model IEnumerable<WebApplication1.Models.ViewModels.ServiceRequestDetailViewModel>
+@{
+    ViewData["Title"] = "My Requests";
+}
+
+<h2 class="page-title">My Service Requests</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-modern success alert-dismissible fade show" role="alert">
+        ✅ @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="mb-4">
+    <a asp-action="Create" class="btn btn-primary-custom">+ Submit New Request</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h5 class="fw-bold">No Requests Yet</h5>
+        <p>You haven't submitted any service requests. Get started by submitting your first request.</p>
+        <a asp-action="Create" class="btn btn-primary-custom">Submit Your First Request</a>
+    </div>
+}
+else
+{
+    <div class="table-modern">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="fw-bold">@item.Id</td>
+                        <td>@item.RequestType</td>
+                        <td>@(item.Description.Length > 50 ? item.Description.Substring(0, 50) + "..." : item.Description)</td>
+                        <td>
+                            @switch (item.Status)
+                            {
+                                case WebApplication1.Models.RequestStatus.Pending:
+                                    <span class="status-badge status-pending">⏳ Pending</span>
+                                    break;
+                                case WebApplication1.Models.RequestStatus.Processing:
+                                    <span class="status-badge status-processing">🔄 Processing</span>
+                                    break;
+                                case WebApplication1.Models.RequestStatus.Completed:
+                                    <span class="status-badge status-completed">✅ Completed</span>
+                                    break;
+                                case WebApplication1.Models.RequestStatus.Rejected:
+                                    <span class="status-badge status-rejected">❌ Rejected</span>
+                                    break;
+                            }
+                        </td>
+                        <td>@item.CreatedDate.ToString("dd MMM yyyy")</td>
+                        <td class="text-end">
+                            <a asp-action="Details" asp-route-id="@item.Id"
+                               class="btn btn-sm btn-outline-primary" style="border-radius:6px;">View</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

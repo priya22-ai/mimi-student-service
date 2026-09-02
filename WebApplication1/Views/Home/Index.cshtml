@@ -1,0 +1,69 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<section class="hero-section">
+    <div class="container position-relative">
+        <span class="hero-badge">🎓 IUBAT — International University of Business Agriculture and Technology</span>
+        <h1>Student Service<br>Request System</h1>
+        <p class="lead mb-4">
+            Submit and track your service requests for ID card replacement, transcripts,
+            and certificates — all in one place.
+        </p>
+        @if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            <div class="d-flex gap-3 flex-wrap">
+                @if (User.IsInRole("Student"))
+                {
+                    <a asp-controller="Student" asp-action="Create" class="btn btn-primary-custom btn-lg">
+                        Submit New Request
+                    </a>
+                    <a asp-controller="Student" asp-action="MyRequests" class="btn btn-outline-custom btn-lg">
+                        View My Requests
+                    </a>
+                }
+                else if (User.IsInRole("Staff"))
+                {
+                    <a asp-controller="Staff" asp-action="AllRequests" class="btn btn-primary-custom btn-lg">
+                        View All Requests
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="d-flex gap-3 flex-wrap">
+                <a asp-controller="Account" asp-action="Login" class="btn btn-primary-custom btn-lg">
+                    Login
+                </a>
+                <a asp-controller="Account" asp-action="Register" class="btn btn-outline-custom btn-lg">
+                    Register as Student
+                </a>
+            </div>
+        }
+    </div>
+</section>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="feature-card">
+            <div class="feature-icon purple">📝</div>
+            <h5 class="fw-bold">Submit Requests</h5>
+            <p class="text-muted mb-0">Easily submit requests for ID cards, transcripts, and certificates online.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card">
+            <div class="feature-icon cyan">📊</div>
+            <h5 class="fw-bold">Track Status</h5>
+            <p class="text-muted mb-0">Monitor your request status in real-time — from pending to completed.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card">
+            <div class="feature-icon green">🔒</div>
+            <h5 class="fw-bold">Secure & Private</h5>
+            <p class="text-muted mb-0">Role-based access ensures only authorized staff can process your requests.</p>
+        </div>
+    </div>
+</div>

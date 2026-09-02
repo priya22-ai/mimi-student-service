@@ -1,0 +1,86 @@
+@model WebApplication1.Models.ViewModels.ServiceRequestDetailViewModel
+@{
+    ViewData["Title"] = "Request Details — Staff";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="detail-card">
+            <div class="detail-header">
+                <h4 class="mb-0 fw-bold">Request #@Model.Id</h4>
+                @switch (Model.Status)
+                {
+                    case WebApplication1.Models.RequestStatus.Pending:
+                        <span class="status-badge status-pending" style="font-size:0.9rem;">⏳ Pending</span>
+                        break;
+                    case WebApplication1.Models.RequestStatus.Processing:
+                        <span class="status-badge status-processing" style="font-size:0.9rem;">🔄 Processing</span>
+                        break;
+                    case WebApplication1.Models.RequestStatus.Completed:
+                        <span class="status-badge status-completed" style="font-size:0.9rem;">✅ Completed</span>
+                        break;
+                    case WebApplication1.Models.RequestStatus.Rejected:
+                        <span class="status-badge status-rejected" style="font-size:0.9rem;">❌ Rejected</span>
+                        break;
+                }
+            </div>
+            <div class="detail-body">
+                <div class="detail-row">
+                    <span class="detail-label">Student Name</span>
+                    <span class="detail-value fw-bold">@Model.StudentName</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Student Email</span>
+                    <span class="detail-value">@Model.StudentEmail</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Request Type</span>
+                    <span class="detail-value fw-bold">@Model.RequestType</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Description</span>
+                    <span class="detail-value">@Model.Description</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Submitted On</span>
+                    <span class="detail-value">@Model.CreatedDate.ToString("dd MMMM yyyy, hh:mm tt")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Last Updated</span>
+                    <span class="detail-value">@Model.UpdatedDate.ToString("dd MMMM yyyy, hh:mm tt")</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-card mt-4">
+            <div class="detail-header" style="background:linear-gradient(135deg,#0f172a,#1e293b);">
+                <h5 class="mb-0 fw-bold">Update Status</h5>
+            </div>
+            <div class="detail-body">
+                <form asp-action="UpdateStatus" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-8">
+                            <label class="form-label">New Status</label>
+                            <select name="Status" class="form-select form-select-lg">
+                                @foreach (var status in Enum.GetValues<WebApplication1.Models.RequestStatus>())
+                                {
+                                    <option value="@status" selected="@(status == Model.Status)">@status</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary-custom w-100">
+                                Update Status
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a asp-action="AllRequests" class="btn btn-outline-secondary" style="border-radius:8px;">← Back to All Requests</a>
+        </div>
+    </div>
+</div>
