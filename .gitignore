@@ -19,6 +19,7 @@ packages/
 ## User-specific files
 appsettings.Development.json
 appsettings.*.json
+appsettings.json
 
 ## OS
 .DS_Store

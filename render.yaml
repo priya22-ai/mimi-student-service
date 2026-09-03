@@ -7,5 +7,3 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
-      - key: DOTNET_ROLL_FORWARD
-        value: LatestMajor
