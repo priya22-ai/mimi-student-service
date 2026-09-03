@@ -3,9 +3,22 @@ using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Models;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = Directory.GetCurrentDirectory()
+});
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+// Fix for Render inotify limit (128 instances) — disable reloadOnChange for JSON files
+// See: https://render.com/docs/troubleshooting-deploys#inotify-instances
+builder.Configuration.Sources.Clear();
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false)
+    .AddEnvironmentVariables()
+    .AddCommandLine(args);
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
