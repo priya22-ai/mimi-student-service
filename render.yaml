@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: student-service-request-system
+    runtime: dotnet
+    buildCommand: dotnet publish ./WebApplication1/WebApplication1.csproj -c Release -o ./output
+    startCommand: dotnet ./output/WebApplication1.dll
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DOTNET_ROLL_FORWARD
+        value: LatestMajor
