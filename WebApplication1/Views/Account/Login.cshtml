@@ -6,38 +6,54 @@
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
-            <h3>Welcome Back</h3>
-            <p class="mb-0 mt-2" style="opacity:0.8;">Sign in to your account</p>
+            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+                <span style="width:38px;height:38px;border-radius:4px;background:var(--burgundy);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:0.95rem;">I</span>
+                <span style="font-weight:700; color:var(--navy); letter-spacing:-0.02em;">IUBAT</span>
+                <span style="margin-left:auto; font-size:0.68rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); border:1px solid var(--border); padding:0.2rem 0.5rem; border-radius:50px;">Secure Login</span>
+            </div>
+            <h3>Welcome back</h3>
+            <p>Sign in to your IUBAT service request account</p>
         </div>
         <div class="auth-body">
             <form asp-action="Login" method="post">
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="border-radius:8px;font-size:0.9rem;"></div>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="border-radius:4px;font-size:0.875rem;"></div>
                 <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
 
                 <div class="mb-3">
-                    <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control" placeholder="you@example.com" />
+                    <label asp-for="Email" class="form-label">Email address</label>
+                    <input asp-for="Email" class="form-control" placeholder="name@iubat.edu" autocomplete="email" />
                     <span asp-validation-for="Email" class="text-danger small"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Password" class="form-label"></label>
-                    <input asp-for="Password" class="form-control" placeholder="Enter password" />
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label asp-for="Password" class="form-label mb-0"></label>
+                    </div>
+                    <input asp-for="Password" class="form-control" placeholder="Enter your password" autocomplete="current-password" />
                     <span asp-validation-for="Password" class="text-danger small"></span>
                 </div>
 
-                <div class="mb-4 form-check">
-                    <input asp-for="RememberMe" class="form-check-input" />
-                    <label asp-for="RememberMe" class="form-check-label" style="font-size:0.9rem;"></label>
+                <div class="mb-4 d-flex align-items-center justify-content-between">
+                    <div class="form-check mb-0">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label" style="font-size:0.85rem; color:var(--text-secondary);"></label>
+                    </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary-custom w-100" style="font-size:1rem;">Sign In</button>
+                <button type="submit" class="btn btn-primary-custom w-100" style="padding:0.75rem; font-size:0.95rem;">Sign In →</button>
             </form>
+
+            <div style="margin-top:1.25rem; padding:0.85rem 1rem; background:var(--bg-soft); border:1px solid var(--border); border-radius:4px; font-size:0.82rem; line-height:1.5; color:var(--text-muted);">
+                <strong style="color:var(--navy);">Staff access</strong> — Use your IUBAT staff credentials to manage all student requests. Students, please register with your university email.
+            </div>
         </div>
         <div class="auth-footer">
-            Don't have an account? <a asp-action="Register">Register here</a>
+            Don't have an account? <a asp-action="Register">Create student account</a>
         </div>
     </div>
+    <p class="text-center mt-3" style="font-size:0.78rem; color:var(--text-light);">
+        Protected by IUBAT IT Services · <a href="#" style="color:var(--text-muted);">Privacy</a> · <a href="#" style="color:var(--text-muted);">Help</a>
+    </p>
 </div>
 
 @section Scripts {

@@ -3,37 +3,76 @@
     ViewData["Title"] = "Submit Request";
 }
 
+<div class="page-header" style="border-bottom:none; padding-bottom:0; margin-bottom:1.25rem;">
+    <div>
+        <div style="display:inline-block; background:var(--bg-soft); border:1px solid var(--border); padding:0.25rem 0.6rem; border-radius:50px; font-size:0.68rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--burgundy); margin-bottom:0.5rem;">New Request</div>
+        <h1 class="page-title" style="margin-bottom:0.35rem;">Submit a service request</h1>
+        <p style="color:var(--text-muted); font-size:0.9rem; max-width:560px; margin:0;">Complete the form below. Your request will be reviewed by IUBAT staff and you will be able to track its status in real time.</p>
+    </div>
+</div>
+
 <div class="row justify-content-center">
     <div class="col-lg-7">
         <div class="detail-card">
             <div class="detail-header">
-                <h4 class="mb-0 fw-bold">Submit a Service Request</h4>
+                <h5 class="mb-0">Request details</h5>
+                <span style="font-size:0.72rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted); border:1px solid var(--border); padding:0.25rem 0.6rem; border-radius:50px;">Required fields *</span>
             </div>
-            <div class="detail-body">
+            <div style="padding:1.75rem 1.5rem;">
                 <form asp-action="Create" method="post">
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="border-radius:8px;"></div>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="border-radius:4px;"></div>
 
                     <div class="mb-4">
-                        <label asp-for="RequestType" class="form-label"></label>
+                        <label asp-for="RequestType" class="form-label">Service type *</label>
                         <select asp-for="RequestType" class="form-select"
                                 asp-items="@(new SelectList(Enum.GetValues(typeof(WebApplication1.Models.RequestType))))">
-                            <option value="">-- Select a request type --</option>
+                            <option value="">Select a service type</option>
                         </select>
                         <span asp-validation-for="RequestType" class="text-danger small"></span>
+                        <div class="form-text" style="font-size:0.78rem; color:var(--text-light);">Choose the category that best matches your need.</div>
                     </div>
 
                     <div class="mb-4">
-                        <label asp-for="Description" class="form-label"></label>
+                        <label asp-for="Description" class="form-label">Description *</label>
                         <textarea asp-for="Description" class="form-control" rows="5"
-                                  placeholder="Describe your request in detail..."></textarea>
+                                  placeholder="Describe your request in detail — include relevant dates, reasons, or reference numbers..."></textarea>
                         <span asp-validation-for="Description" class="text-danger small"></span>
+                        <div class="d-flex justify-content-between">
+                            <span class="form-text" style="font-size:0.78rem; color:var(--text-light);">Max 500 characters. Be clear and specific.</span>
+                        </div>
                     </div>
 
-                    <div class="d-flex gap-3">
-                        <button type="submit" class="btn btn-primary-custom flex-fill">Submit Request</button>
-                        <a asp-action="MyRequests" class="btn btn-outline-secondary" style="border-radius:8px;">Cancel</a>
+                    <div class="d-flex gap-3 pt-2" style="border-top:1px solid var(--border-light); margin-top:1rem;">
+                        <button type="submit" class="btn btn-primary-custom flex-fill" style="padding:0.7rem;">Submit Request →</button>
+                        <a asp-action="MyRequests" class="btn btn-outline-custom" style="padding:0.7rem 1.5rem;">Cancel</a>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <div style="margin-top:1.25rem; padding:1rem 1.25rem; background:var(--bg-soft); border:1px solid var(--border); border-radius:4px; font-size:0.82rem; color:var(--text-muted); line-height:1.6;">
+            <strong style="color:var(--navy);">What happens next?</strong> After submission you will receive a reference number. Staff will review and update the status to <em>Processing</em>, <em>Completed</em> or <em>Rejected</em>. You can track progress under <a asp-action="MyRequests" style="font-weight:600;">My Requests</a>.
+        </div>
+    </div>
+    <div class="col-lg-4 d-none d-lg-block">
+        <div style="background:#fff; border:1px solid var(--border); border-radius:6px; padding:1.25rem; box-shadow:var(--shadow-xs); position:sticky; top:84px;">
+            <h6 style="font-weight:700; color:var(--navy); font-size:0.9rem; margin-bottom:1rem; letter-spacing:-0.01em;">Service information</h6>
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+                <div style="display:flex; gap:0.75rem;">
+                    <span style="width:32px;height:32px;border-radius:4px;background:var(--bg-soft);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">🪪</span>
+                    <div><div style="font-weight:600; font-size:0.85rem; color:var(--navy);">ID Card Replacement</div><div style="font-size:0.78rem; color:var(--text-muted); line-height:1.4;">For lost, damaged or renewal requests.</div></div>
+                </div>
+                <div style="display:flex; gap:0.75rem;">
+                    <span style="width:32px;height:32px;border-radius:4px;background:var(--bg-soft);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">📜</span>
+                    <div><div style="font-weight:600; font-size:0.85rem; color:var(--navy);">Transcript</div><div style="font-size:0.78rem; color:var(--text-muted); line-height:1.4;">Academic transcript issuance.</div></div>
+                </div>
+                <div style="display:flex; gap:0.75rem;">
+                    <span style="width:32px;height:32px;border-radius:4px;background:var(--bg-soft);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">🎓</span>
+                    <div><div style="font-weight:600; font-size:0.85rem; color:var(--navy);">Certificate</div><div style="font-size:0.78rem; color:var(--text-muted); line-height:1.4;">Degree or course completion certificate.</div></div>
+                </div>
+            </div>
+            <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border-light); font-size:0.78rem; color:var(--text-light);">
+                Queries? Email <a href="mailto:support@iubat.edu" style="font-weight:600;">support@iubat.edu</a>
             </div>
         </div>
     </div>

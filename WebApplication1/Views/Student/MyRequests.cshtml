@@ -3,7 +3,15 @@
     ViewData["Title"] = "My Requests";
 }
 
-<h2 class="page-title">My Service Requests</h2>
+<div class="page-header">
+    <div>
+        <h1 class="page-title" style="margin-bottom:0.35rem;">My service requests</h1>
+        <p>Track all your submitted requests and view their current status.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Create" class="btn btn-primary-custom">＋ Submit New Request</a>
+    </div>
+</div>
 
 @if (TempData["Success"] != null)
 {
@@ -13,26 +21,30 @@
     </div>
 }
 
-<div class="mb-4">
-    <a asp-action="Create" class="btn btn-primary-custom">+ Submit New Request</a>
-</div>
-
 @if (!Model.Any())
 {
     <div class="empty-state">
         <div class="empty-icon">📋</div>
-        <h5 class="fw-bold">No Requests Yet</h5>
-        <p>You haven't submitted any service requests. Get started by submitting your first request.</p>
-        <a asp-action="Create" class="btn btn-primary-custom">Submit Your First Request</a>
+        <h5 class="fw-bold" style="color:var(--navy);">No requests yet</h5>
+        <p style="max-width:480px; margin:0.5rem auto 1.25rem; font-size:0.9rem;">You haven't submitted any service requests. Get started by submitting your first request — it takes less than a minute.</p>
+        <a asp-action="Create" class="btn btn-primary-custom">Submit Your First Request →</a>
     </div>
 }
 else
 {
+    <div style="display:flex; gap:0.75rem; margin-bottom:1rem; flex-wrap:wrap;">
+        <span style="font-size:0.78rem; font-weight:600; color:var(--text-muted);">Total: <strong style="color:var(--navy);">@Model.Count()</strong></span>
+        <span style="color:var(--border);">|</span>
+        <span class="status-badge status-pending" style="font-size:0.68rem;">@Model.Count(m => m.Status == WebApplication1.Models.RequestStatus.Pending) Pending</span>
+        <span class="status-badge status-processing" style="font-size:0.68rem;">@Model.Count(m => m.Status == WebApplication1.Models.RequestStatus.Processing) Processing</span>
+        <span class="status-badge status-completed" style="font-size:0.68rem;">@Model.Count(m => m.Status == WebApplication1.Models.RequestStatus.Completed) Completed</span>
+    </div>
     <div class="table-modern">
+        <div style="overflow-x:auto;">
         <table class="table mb-0">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th style="width:60px;">Ref</th>
                     <th>Type</th>
                     <th>Description</th>
                     <th>Status</th>
@@ -44,34 +56,36 @@ else
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td class="fw-bold">@item.Id</td>
-                        <td>@item.RequestType</td>
-                        <td>@(item.Description.Length > 50 ? item.Description.Substring(0, 50) + "..." : item.Description)</td>
+                        <td class="fw-bold" style="color:var(--navy);">#@item.Id</td>
+                        <td><span style="font-weight:600; color:var(--text-primary);">@item.RequestType</span></td>
+                        <td style="max-width:280px;"><span style="color:var(--text-secondary);">@(item.Description.Length > 56 ? item.Description.Substring(0, 56) + "…" : item.Description)</span></td>
                         <td>
                             @switch (item.Status)
                             {
                                 case WebApplication1.Models.RequestStatus.Pending:
-                                    <span class="status-badge status-pending">⏳ Pending</span>
+                                    <span class="status-badge status-pending">Pending</span>
                                     break;
                                 case WebApplication1.Models.RequestStatus.Processing:
-                                    <span class="status-badge status-processing">🔄 Processing</span>
+                                    <span class="status-badge status-processing">Processing</span>
                                     break;
                                 case WebApplication1.Models.RequestStatus.Completed:
-                                    <span class="status-badge status-completed">✅ Completed</span>
+                                    <span class="status-badge status-completed">Completed</span>
                                     break;
                                 case WebApplication1.Models.RequestStatus.Rejected:
-                                    <span class="status-badge status-rejected">❌ Rejected</span>
+                                    <span class="status-badge status-rejected">Rejected</span>
                                     break;
                             }
                         </td>
-                        <td>@item.CreatedDate.ToString("dd MMM yyyy")</td>
+                        <td style="white-space:nowrap; color:var(--text-muted); font-size:0.82rem;">@item.CreatedDate.ToString("dd MMM yyyy")</td>
                         <td class="text-end">
                             <a asp-action="Details" asp-route-id="@item.Id"
-                               class="btn btn-sm btn-outline-primary" style="border-radius:6px;">View</a>
+                               class="btn btn-sm btn-outline-custom" style="padding:0.35rem 0.85rem; font-size:0.78rem;">View →</a>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
+        </div>
     </div>
+    <p style="margin-top:0.85rem; font-size:0.78rem; color:var(--text-light);">Showing @Model.Count() request(s). Click <strong>View</strong> for full details and timestamps.</p>
 }

@@ -3,17 +3,39 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - IUBAT Service Requests</title>
+    <title>@ViewData["Title"] - IUBAT | Student Service Request System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
+    <!-- Top utility bar — like law.ac.uk -->
+    <div class="top-bar d-none d-md-block">
+        <div class="container" style="max-width: var(--max-width);">
+            <div class="top-bar-inner">
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <span>📍 4 Embankment Drive, Uttara, Dhaka-1230</span>
+                    <span class="d-none d-lg-inline" style="opacity:0.4;">|</span>
+                    <a href="mailto:admissions@iubat.edu">admissions@iubat.edu</a>
+                    <span class="d-none d-lg-inline" style="opacity:0.4;">|</span>
+                    <a href="tel:+880255032673">+880 2 5503 2673</a>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span style="opacity:0.7;">IUBAT — International University of Business Agriculture and Technology</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <header>
-        <nav class="navbar navbar-expand-md navbar-dark navbar-custom">
+        <nav class="navbar navbar-expand-lg navbar-custom">
             <div class="container">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    <span class="brand-icon">🎓</span>
-                    IUBAT SSR
+                    <span class="brand-icon">I</span>
+                    <span class="brand-text">
+                        IUBAT
+                        <small>Student Service Requests</small>
+                    </span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#mainNav" aria-controls="mainNav"
@@ -23,7 +45,8 @@
                 <div class="collapse navbar-collapse" id="mainNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()=="Home" && ViewContext.RouteData.Values["action"]?.ToString()=="Index" ? "active" : "")"
+                               asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
@@ -43,13 +66,25 @@
                                 </li>
                             }
                         }
+                        else
+                        {
+                            <li class="nav-item d-lg-none">
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
+                            </li>
+                            <li class="nav-item d-lg-none">
+                                <a class="nav-link" asp-controller="Account" asp-action="Register">Register</a>
+                            </li>
+                        }
                     </ul>
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav align-items-lg-center">
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <span class="nav-link" style="cursor:default;">
-                                    @User.Identity.Name
+                                <span class="nav-link" style="cursor:default; border-bottom-color: transparent; display:flex; align-items:center; gap:0.5rem;">
+                                    <span style="width:28px;height:28px;border-radius:50%;background:var(--bg-soft);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:var(--navy);">
+                                        @(User.Identity.Name?.Substring(0,1).ToUpper() ?? "U")
+                                    </span>
+                                    <span style="font-weight:600; color:var(--navy);">@User.Identity.Name</span>
                                     @if (User.IsInRole("Staff"))
                                     {
                                         <span class="badge-staff">Staff</span>
@@ -60,34 +95,147 @@
                                     }
                                 </span>
                             </li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post">
-                                    <button type="submit" class="nav-link btn btn-link" style="color:rgba(255,255,255,0.8);">Logout</button>
+                            <li class="nav-item ms-lg-2">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-custom btn-sm" style="padding:0.45rem 1rem;">Logout</button>
                                 </form>
                             </li>
                         }
                         else
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
+                            <li class="nav-item d-none d-lg-block">
+                                <a class="nav-link" asp-controller="Account" asp-action="Login" style="font-weight:600;">Login</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Register">Register</a>
+                            <li class="nav-item d-none d-lg-block ms-1">
+                                <a asp-controller="Account" asp-action="Register" class="btn btn-primary-custom btn-sm">Register</a>
                             </li>
                         }
                     </ul>
                 </div>
             </div>
         </nav>
+
+        @* Breadcrumb — only show when not on Home/Index *@
+        @{
+            var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+            var action = ViewContext.RouteData.Values["action"]?.ToString();
+            var showBreadcrumb = !(controller == "Home" && action == "Index");
+        }
+        @if (showBreadcrumb)
+        {
+            <div class="breadcrumb-bar">
+                <div class="container" style="max-width: var(--max-width);">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                            @if (controller == "Student" && action == "Create")
+                            {
+                                <li class="breadcrumb-item active" aria-current="page">Submit Request</li>
+                            }
+                            else if (controller == "Student" && action == "MyRequests")
+                            {
+                                <li class="breadcrumb-item active" aria-current="page">My Requests</li>
+                            }
+                            else if (controller == "Student" && action == "Details")
+                            {
+                                <li class="breadcrumb-item"><a asp-controller="Student" asp-action="MyRequests">My Requests</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Request Details</li>
+                            }
+                            else if (controller == "Staff" && action == "AllRequests")
+                            {
+                                <li class="breadcrumb-item active" aria-current="page">All Requests</li>
+                            }
+                            else if (controller == "Staff" && action == "Details")
+                            {
+                                <li class="breadcrumb-item"><a asp-controller="Staff" asp-action="AllRequests">All Requests</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Request Details</li>
+                            }
+                            else if (controller == "Account" && action == "Login")
+                            {
+                                <li class="breadcrumb-item active" aria-current="page">Login</li>
+                            }
+                            else if (controller == "Account" && action == "Register")
+                            {
+                                <li class="breadcrumb-item active" aria-current="page">Register</li>
+                            }
+                            else
+                            {
+                                <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+                            }
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        }
     </header>
 
-    <main class="container">
+    <main class="@(ViewContext.RouteData.Values["controller"]?.ToString()=="Home" && ViewContext.RouteData.Values["action"]?.ToString()=="Index" ? "" : "container")"
+          style="@(ViewContext.RouteData.Values["controller"]?.ToString()=="Home" && ViewContext.RouteData.Values["action"]?.ToString()=="Index" ? "" : "max-width: var(--max-width); padding: 1.75rem 1rem 2rem;")">
         @RenderBody()
     </main>
 
     <footer class="footer-custom">
-        <div class="container text-center">
-            &copy; 2026 IUBAT — Student Service Request System
+        <div class="footer-top">
+            <div class="container" style="max-width: var(--max-width);">
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="footer-brand mb-3">
+                            <span class="footer-logo">I</span>
+                            IUBAT — Student Service Requests
+                        </div>
+                        <p style="color: rgba(255,255,255,0.65); line-height: 1.7; font-size: 0.85rem; max-width: 360px;">
+                            The official service request portal for IUBAT students. Submit, track and manage requests for ID cards, transcripts and certificates with transparency and speed.
+                        </p>
+                        <div class="d-flex gap-2 mt-3">
+                            <span style="width:32px;height:32px;border-radius:4px;background:rgba(255,255,255,0.08);display:inline-flex;align-items:center;justify-content:center;font-size:0.9rem;">🎓</span>
+                            <span style="width:32px;height:32px;border-radius:4px;background:rgba(255,255,255,0.08);display:inline-flex;align-items:center;justify-content:center;font-size:0.9rem;">📚</span>
+                            <span style="width:32px;height:32px;border-radius:4px;background:rgba(255,255,255,0.08);display:inline-flex;align-items:center;justify-content:center;font-size:0.9rem;">🏛️</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-2">
+                        <h6>Services</h6>
+                        <ul>
+                            <li><a asp-controller="Student" asp-action="Create">Submit Request</a></li>
+                            <li><a asp-controller="Student" asp-action="MyRequests">My Requests</a></li>
+                            <li><a>ID Card Replacement</a></li>
+                            <li><a>Transcript</a></li>
+                            <li><a>Certificate</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-6 col-lg-2">
+                        <h6>University</h6>
+                        <ul>
+                            <li><a href="https://iubat.edu" target="_blank" rel="noopener">IUBAT Main Website</a></li>
+                            <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                            <li><a asp-controller="Account" asp-action="Login">Staff Login</a></li>
+                            <li><a asp-controller="Account" asp-action="Register">Student Register</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4">
+                        <h6>Contact</h6>
+                        <ul style="color: rgba(255,255,255,0.7);">
+                            <li style="margin-bottom:0.75rem;">
+                                <strong style="color:#fff; font-weight:600;">IUBAT Campus</strong><br>
+                                4 Embankment Drive Road, Sector 10,<br>Uttara Model Town, Dhaka-1230, Bangladesh
+                            </li>
+                            <li><a href="mailto:support@iubat.edu">support@iubat.edu</a></li>
+                            <li><a href="tel:+880255032673">+880 2 5503 2673</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container" style="max-width: var(--max-width);">
+            <div class="footer-bottom">
+                <div>
+                    &copy; 2026 IUBAT — International University of Business Agriculture and Technology. All rights reserved.
+                </div>
+                <div style="display:flex; gap:1.25rem; flex-wrap:wrap;">
+                    <a href="#" style="color: rgba(255,255,255,0.6);">Privacy Policy</a>
+                    <a href="#" style="color: rgba(255,255,255,0.6);">Terms of Use</a>
+                    <a href="#" style="color: rgba(255,255,255,0.6);">Help</a>
+                </div>
+            </div>
         </div>
     </footer>
 

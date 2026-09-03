@@ -3,67 +3,135 @@
 }
 
 <section class="hero-section">
-    <div class="container position-relative">
-        <span class="hero-badge">🎓 IUBAT — International University of Business Agriculture and Technology</span>
-        <h1>Student Service<br>Request System</h1>
-        <p class="lead mb-4">
-            Submit and track your service requests for ID card replacement, transcripts,
-            and certificates — all in one place.
-        </p>
-        @if (User.Identity != null && User.Identity.IsAuthenticated)
-        {
-            <div class="d-flex gap-3 flex-wrap">
-                @if (User.IsInRole("Student"))
-                {
-                    <a asp-controller="Student" asp-action="Create" class="btn btn-primary-custom btn-lg">
-                        Submit New Request
+    <div class="hero-inner">
+        <div>
+            <span class="hero-badge">Est. 1991 · IUBAT — International University of Business Agriculture and Technology</span>
+            <h1>Student Service <span class="accent">Request</span> System</h1>
+            <p class="lead">
+                Submit and track your service requests for ID card replacement, transcripts,
+                and certificates — all in one secure, transparent portal.
+            </p>
+
+            @if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                <div class="hero-actions">
+                    @if (User.IsInRole("Student"))
+                    {
+                        <a asp-controller="Student" asp-action="Create" class="btn btn-primary-custom">
+                            Submit New Request →
+                        </a>
+                        <a asp-controller="Student" asp-action="MyRequests" class="btn btn-outline-custom">
+                            View My Requests
+                        </a>
+                    }
+                    else if (User.IsInRole("Staff"))
+                    {
+                        <a asp-controller="Staff" asp-action="AllRequests" class="btn btn-primary-custom">
+                            View All Requests →
+                        </a>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-custom">
+                            Dashboard
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="hero-actions">
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary-custom">
+                        Login to Continue →
                     </a>
-                    <a asp-controller="Student" asp-action="MyRequests" class="btn btn-outline-custom btn-lg">
-                        View My Requests
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-outline-custom">
+                        Register as Student
                     </a>
-                }
-                else if (User.IsInRole("Staff"))
-                {
-                    <a asp-controller="Staff" asp-action="AllRequests" class="btn btn-primary-custom btn-lg">
-                        View All Requests
-                    </a>
-                }
+                </div>
+            }
+
+            <div class="hero-meta">
+                <div class="hero-meta-item">
+                    <span style="width:28px;height:28px;border-radius:50%;background:var(--bg-soft);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;">◷</span>
+                    <span><strong>24h</strong> Avg. response</span>
+                </div>
+                <div class="hero-meta-item">
+                    <span style="width:28px;height:28px;border-radius:50%;background:var(--bg-soft);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;">✓</span>
+                    <span><strong>3</strong> Service types</span>
+                </div>
+                <div class="hero-meta-item">
+                    <span style="width:28px;height:28px;border-radius:50%;background:var(--bg-soft);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;">🔒</span>
+                    <span><strong>Secure</strong> & role-based</span>
+                </div>
             </div>
-        }
-        else
-        {
-            <div class="d-flex gap-3 flex-wrap">
-                <a asp-controller="Account" asp-action="Login" class="btn btn-primary-custom btn-lg">
-                    Login
-                </a>
-                <a asp-controller="Account" asp-action="Register" class="btn btn-outline-custom btn-lg">
-                    Register as Student
-                </a>
+        </div>
+
+        <div class="hero-visual">
+            <div class="hero-visual-inner">
+                <div class="visual-icon">🎓</div>
+                <h4>Trusted by IUBAT Students</h4>
+                <p>Track every request from submission to completion with real-time status updates and staff support.</p>
+                <div style="margin-top:1.25rem; display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
+                    <span class="status-badge status-pending">Pending</span>
+                    <span class="status-badge status-processing">Processing</span>
+                    <span class="status-badge status-completed">Completed</span>
+                </div>
+                <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border); display:grid; grid-template-columns: repeat(3,1fr); gap:0.75rem; text-align:center;">
+                    <div><div style="font-weight:800; color:var(--navy); font-size:1.1rem;">500+</div><div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:600;">Requests</div></div>
+                    <div style="border-left:1px solid var(--border); border-right:1px solid var(--border);"><div style="font-weight:800; color:var(--navy); font-size:1.1rem;">98%</div><div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:600;">On-time</div></div>
+                    <div><div style="font-weight:800; color:var(--navy); font-size:1.1rem;">24/7</div><div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:600;">Access</div></div>
+                </div>
             </div>
-        }
+        </div>
     </div>
 </section>
 
-<div class="row g-4 mb-4">
-    <div class="col-md-4">
-        <div class="feature-card">
-            <div class="feature-icon purple">📝</div>
-            <h5 class="fw-bold">Submit Requests</h5>
-            <p class="text-muted mb-0">Easily submit requests for ID cards, transcripts, and certificates online.</p>
+<div class="container" style="max-width: var(--max-width);">
+    <!-- Section header like law.ac.uk -->
+    <div style="max-width: 720px; margin: 0 0 1.75rem 0;">
+        <div style="display:inline-block; background:var(--bg-soft); border:1px solid var(--border); padding:0.25rem 0.6rem; border-radius:50px; font-size:0.72rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--navy); margin-bottom:0.75rem;">How it works</div>
+        <h2 style="font-family:'Playfair Display', Georgia, serif; font-size:1.75rem; font-weight:700; color:var(--navy); margin-bottom:0.5rem; letter-spacing:-0.03em;">Designed for students, built for clarity</h2>
+        <p style="color:var(--text-muted); font-size:0.95rem; line-height:1.6; margin:0;">
+            A simple, professional workflow — submit your request in under a minute, monitor progress in real time, and receive staff updates without visiting the office.
+        </p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon purple">📝</div>
+                <h5>Submit Requests</h5>
+                <p>Easily submit requests for ID cards, transcripts, and certificates online — no paperwork, no queue.</p>
+                <div style="margin-top:1rem; font-size:0.82rem; font-weight:600; color:var(--burgundy);">ID Card · Transcript · Certificate →</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon cyan">📊</div>
+                <h5>Track Status</h5>
+                <p>Monitor your request status in real-time — from pending to processing to completed — with timestamps.</p>
+                <div style="margin-top:1rem; font-size:0.82rem; font-weight:600; color:var(--burgundy);">Real-time updates →</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon green">🔒</div>
+                <h5>Secure & Private</h5>
+                <p>Role-based access ensures only authorized staff can view and process your requests. Your data stays private.</p>
+                <div style="margin-top:1rem; font-size:0.82rem; font-weight:600; color:var(--burgundy);">Role-based security →</div>
+            </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="feature-card">
-            <div class="feature-icon cyan">📊</div>
-            <h5 class="fw-bold">Track Status</h5>
-            <p class="text-muted mb-0">Monitor your request status in real-time — from pending to completed.</p>
+
+    <!-- Info strip like ULaw -->
+    <div style="background: var(--navy); color: #fff; border-radius: var(--radius); padding: 1.5rem 1.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom: 0.5rem;">
+        <div>
+            <div style="font-weight:700; font-size:1rem; margin-bottom:0.2rem;">Need assistance?</div>
+            <div style="opacity:0.8; font-size:0.875rem;">Our support team is available during university hours to help with your requests.</div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="feature-card">
-            <div class="feature-icon green">🔒</div>
-            <h5 class="fw-bold">Secure & Private</h5>
-            <p class="text-muted mb-0">Role-based access ensures only authorized staff can process your requests.</p>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="mailto:support@iubat.edu" class="btn" style="background:#fff; color:var(--navy); font-weight:600; border-radius:4px; padding:0.6rem 1.25rem; font-size:0.85rem;">Contact Support</a>
+            @if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                <a asp-controller="Account" asp-action="Register" class="btn" style="background:var(--burgundy); color:#fff; font-weight:600; border-radius:4px; padding:0.6rem 1.25rem; font-size:0.85rem; border:1px solid rgba(255,255,255,0.2);">Create Account</a>
+            }
         </div>
     </div>
 </div>
