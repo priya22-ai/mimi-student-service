@@ -11,9 +11,10 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 
 // Fix for Render inotify limit (128 instances) — disable reloadOnChange for JSON files
 // See: https://render.com/docs/troubleshooting-deploys#inotify-instances
+// appsettings.json is .gitignored and provided via env vars on Render, so must be optional:true
 builder.Configuration.Sources.Clear();
 builder.Configuration
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false)
     .AddEnvironmentVariables()
     .AddCommandLine(args);
