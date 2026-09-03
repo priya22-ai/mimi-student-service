@@ -1,9 +1,9 @@
 services:
   - type: web
     name: student-service-request-system
-    runtime: dotnet
-    buildCommand: dotnet publish ./WebApplication1/WebApplication1.csproj -c Release -o ./output
-    startCommand: dotnet ./output/WebApplication1.dll
+    runtime: docker
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
