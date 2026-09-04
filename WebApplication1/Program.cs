@@ -22,7 +22,85 @@ builder.Configuration
 var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
-// Normalize connection string: supports both postgresql:// URL and Host= key-value formats
+// Helper: convert postgresql:// URI to Npgsql key-value string (NpgsqlConnectionStringBuilder does not accept URI)
+string NormalizeConnectionString(string? raw)
+{
+    if (string.IsNullOrWhiteSpace(raw)) return raw!;
+    if (!raw.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase) &&
+        !raw.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase))
+        return raw;
+
+    try
+    {
+        var uri = new Uri(raw);
+        var userInfo = uri.UserInfo.Split(':', 2);
+        var username = userInfo.Length > 0 ? Uri.UnescapeDataString(userInfo[0]) : "";
+        var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "";
+        var host = uri.Host;
+        var port = uri.Port != -1 ? uri.Port : 5432;
+        var database = uri.AbsolutePath.TrimStart('/');
+
+        // Parse query string manually (avoid extra deps)
+        var queryParams = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (!string.IsNullOrEmpty(uri.Query))
+        {
+            var q = uri.Query.TrimStart('?');
+            foreach (var part in q.Split('&', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var kv = part.Split('=', 2);
+                var key = Uri.UnescapeDataString(kv[0]);
+                var val = kv.Length > 1 ? Uri.UnescapeDataString(kv[1]) : "";
+                queryParams[key] = val;
+            }
+        }
+
+        var builder = new Npgsql.NpgsqlConnectionStringBuilder
+        {
+            Host = host,
+            Port = port,
+            Database = database,
+            Username = username,
+            Password = password,
+        };
+
+        // Map common URI query params to Npgsql builder
+        if (queryParams.TryGetValue("sslmode", out var sslmode))
+        {
+            if (Enum.TryParse<Npgsql.SslMode>(sslmode, true, out var mode))
+                builder.SslMode = mode;
+            else if (sslmode.Equals("require", StringComparison.OrdinalIgnoreCase))
+                builder.SslMode = Npgsql.SslMode.Require;
+            else if (sslmode.Equals("prefer", StringComparison.OrdinalIgnoreCase))
+                builder.SslMode = Npgsql.SslMode.Prefer;
+            else if (sslmode.Equals("disable", StringComparison.OrdinalIgnoreCase))
+                builder.SslMode = Npgsql.SslMode.Disable;
+        }
+
+        // channel_binding — Npgsql 8+ uses ChannelBinding property
+        if (queryParams.TryGetValue("channel_binding", out var cb))
+        {
+            try { builder["Channel Binding"] = cb; } catch { /* ignore if not supported */ }
+        }
+
+        // Pass through any other params (e.g., pooling, timeout) via builder indexer
+        foreach (var kv in queryParams)
+        {
+            if (kv.Key.Equals("sslmode", StringComparison.OrdinalIgnoreCase) ||
+                kv.Key.Equals("channel_binding", StringComparison.OrdinalIgnoreCase))
+                continue;
+            try { builder[kv.Key] = kv.Value; } catch { /* unknown key, ignore */ }
+        }
+
+        // Neon requires SSL; ensure TrustServerCertificate handling is not needed (Neon uses valid cert)
+        return builder.ConnectionString;
+    }
+    catch
+    {
+        // Fallback: return raw (EF will throw clear error)
+        return raw;
+    }
+}
+
 string? rawConn = builder.Configuration.GetConnectionString("DefaultConnection");
 // Fallback: direct env var check (covers DATABASE_URL on some platforms)
 if (string.IsNullOrWhiteSpace(rawConn))
@@ -42,7 +120,8 @@ string Sanitize(string? conn)
     try
     {
         // Hide password in logs
-        if (conn.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+        if (conn.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase) ||
+            conn.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase))
         {
             var uri = new Uri(conn);
             var userInfo = uri.UserInfo; // user:password
@@ -76,21 +155,21 @@ if (string.IsNullOrWhiteSpace(rawConn))
 else
 {
     tmpLogger.LogInformation("Using DefaultConnection: {Sanitized}", Sanitize(rawConn));
-    // Validate Npgsql can parse it
+    var normalizedForLog = NormalizeConnectionString(rawConn);
+    // Validate Npgsql can parse normalized string
     try
     {
-        var csb = new Npgsql.NpgsqlConnectionStringBuilder(rawConn);
-        tmpLogger.LogInformation("Npgsql parsed OK — Host:{Host} Database:{Database} Username:{Username} SslMode:{SslMode}", csb.Host, csb.Database, csb.Username, csb.SslMode);
+        var csb = new Npgsql.NpgsqlConnectionStringBuilder(normalizedForLog);
+        tmpLogger.LogInformation("Npgsql parsed OK — Host:{Host} Database:{Database} Username:{Username} SslMode:{SslMode} Port:{Port}", csb.Host, csb.Database, csb.Username, csb.SslMode, csb.Port);
     }
     catch (Exception ex)
     {
-        // postgresql:// URI may still be valid for Npgsql even if builder fails — log warning only
         tmpLogger.LogWarning(ex, "NpgsqlConnectionStringBuilder parse warning for: {Sanitized}", Sanitize(rawConn));
     }
 }
 
-// Use normalized string (fallback to raw if null to let EF throw clear error)
-var connectionString = rawConn;
+// Use normalized Npgsql-compatible connection string
+var connectionString = NormalizeConnectionString(rawConn);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -139,10 +218,12 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
-        await context.Database.EnsureCreatedAsync();
+        // Use MigrateAsync for proper migrations support (EnsureCreated is incompatible with migrations)
+        // For fresh Neon DB (ep-late-art) this will apply InitialCreate
+        await context.Database.MigrateAsync();
         await SeedData.InitializeAsync(services);
         var startupLogger = services.GetRequiredService<ILogger<Program>>();
-        startupLogger.LogInformation("Database EnsureCreated + SeedData completed");
+        startupLogger.LogInformation("Database Migrate + SeedData completed");
     }
     catch (Exception ex)
     {
